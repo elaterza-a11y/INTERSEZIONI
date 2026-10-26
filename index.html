@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="it" class="h-full bg-slate-900 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intersezioni in Avanti - Topografia IV CAT</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        tech: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            700: '#0369a1',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome icons per simboli chiari -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Personalizzazioni accessibilità e stili specifici */
+        .btn-touch {
+            min-height: 48px;
+            min-width: 48px;
+        }
+        input:focus, button:focus {
+            outline: 3px solid #38bdf8 !important;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col font-sans antialiased bg-slate-900 text-slate-100">
+
+    <!-- Header / Navbar -->
+    <header class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-20 shadow-md">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-drafting-compass text-sky-400 text-2xl" aria-hidden="true"></i>
+                <div>
+                    <h1 class="text-lg sm:text-xl font-bold text-white leading-tight">Intersezioni in Avanti</h1>
+                    <p class="text-xs text-sky-300">Topografia — Classe Quarta C.A.T.</p>
+                </div>
+            </div>
+            <!-- Indicatori progresso -->
+            <div id="progress-container" class="hidden flex items-center space-x-4">
+                <div class="text-right">
+                    <span class="text-xs text-slate-400 block">Quesito</span>
+                    <span id="question-tracker" class="font-mono text-sm font-bold text-sky-400">1 / 10</span>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs text-slate-400 block">Punteggio</span>
+                    <span id="score-tracker" class="font-mono text-sm font-bold text-emerald-400">0 pt</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 flex flex-col justify-center">
+
+        <!-- Schermata Iniziale / Benvenuto -->
+        <section id="welcome-screen" class="bg-slate-800 rounded-xl p-6 sm:p-8 border border-slate-700 shadow-xl text-center my-auto">
+            <div class="inline-flex p-4 bg-sky-900/50 rounded-full text-sky-400 mb-4 border border-sky-700/50">
+                <i class="fa-solid fa-map-location-dot text-4xl"></i>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-bold mb-3 text-white">Laboratorio Operativo: Intersezione in Avanti</h2>
+            <p class="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto mb-6">
+                Metti alla prova le tue competenze nella risoluzione dei problemi di trigonometria topografica. 
+                Affronterai **10 quesiti operativi e teorici** sul calcolo delle coordinate di punti incogniti determinati da stazioni note.
+            </p>
+
+            <div class="bg-slate-900/80 p-4 rounded-lg border border-slate-700 text-left max-w-xl mx-auto mb-8 text-xs sm:text-sm space-y-2">
+                <div class="font-semibold text-sky-400 mb-1 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-info"></i> Regole dell'Esercitazione:
+                </div>
+                <ul class="list-disc list-inside text-slate-300 space-y-1">
+                    <li>Hai a disposizione <strong>3 tentativi</strong> per ciascuna prova.</li>
+                    <li>Puoi richiedere un <strong>suggerimento</strong> dopo il primo tentativo errato.</li>
+                    <li>Utilizza la <strong>calcolatrice integrata</strong> (o la tua calcolatrice scientifica).</li>
+                    <li>Le risposte numeriche tollerano piccoli arrotondamenti decimali.</li>
+                </ul>
+            </div>
+
+            <button id="start-btn" onclick="app.startChallenge()" class="w-full sm:w-auto px-8 py-4 bg-sky-600 hover:bg-sky-500 active:bg-sky-700 text-white font-bold rounded-lg shadow-lg transition duration-200 text-lg btn-touch flex items-center justify-center gap-3 mx-auto">
+                <span>Inizia la Sfida (10 Prove)</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </section>
+
+        <!-- Schermata Quiz / Sfida -->
+        <section id="quiz-screen" class="hidden flex-col gap-6 my-auto">
+
+            <!-- Card del Quesito -->
+            <div class="bg-slate-800 rounded-xl p-5 sm:p-7 border border-slate-700 shadow-xl">
+                <!-- Header quesito -->
+                <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-700">
+                    <span id="badge-category" class="px-3 py-1 bg-sky-900/60 text-sky-300 border border-sky-700/50 text-xs font-semibold rounded-full">
+                        Calcolo Topografico
+                    </span>
+                    <span id="attempts-badge" class="text-xs font-medium text-amber-400 bg-amber-950/40 border border-amber-800/50 px-2.5 py-1 rounded-md">
+                        Tentativo 1 di 3
+                    </span>
+                </div>
+
+                <!-- Testo della Domanda -->
+                <div id="question-text" class="text-base sm:text-lg font-medium text-slate-100 mb-6 leading-relaxed">
+                    <!-- Inserito dinamicamente -->
+                </div>
+
+                <!-- Visualizzatore Grafico / Schema (se applicabile) -->
+                <div id="diagram-container" class="hidden mb-6 p-4 bg-slate-950 rounded-lg border border-slate-800 text-center">
+                    <svg id="svg-diagram" class="mx-auto max-w-full h-auto" style="max-height: 180px;" viewBox="0 0 400 160">
+                        <!-- SVG renderizzato dinamicamente -->
+                    </svg>
+                </div>
+
+                <!-- Input o Scelte Multiple -->
+                <div id="answer-container" class="space-y-4 mb-6">
+                    <!-- Generato dinamicamente (Input numerico o Radio buttons) -->
+                </div>
+
+                <!-- Feedback Box (Nascosto di default) -->
+                <div id="feedback-box" class="hidden p-4 rounded-lg border mb-6 text-sm">
+                    <div class="flex items-start gap-3">
+                        <span id="feedback-icon" class="text-xl"></span>
+                        <div class="flex-1">
+                            <h4 id="feedback-title" class="font-bold mb-1"></h4>
+                            <p id="feedback-text" class="text-slate-200 leading-relaxed"></p>
+                            <div id="explanation-detail" class="hidden mt-3 pt-3 border-t border-slate-700/50 text-xs font-mono text-slate-300"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Barra dei Pulsanti di Azione -->
+                <div class="flex flex-wrap gap-3 justify-between items-center pt-2">
+                    <button id="calc-toggle-btn" onclick="app.toggleCalculator()" class="px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-medium rounded-lg btn-touch flex items-center gap-2">
+                        <i class="fa-solid fa-calculator text-sky-400"></i>
+                        <span>Calcolatrice</span>
+                    </button>
+
+                    <div class="flex gap-3 ml-auto">
+                        <button id="submit-btn" onclick="app.checkAnswer()" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold rounded-lg shadow btn-touch flex items-center gap-2">
+                            <span>Verifica</span>
+                            <i class="fa-solid fa-check"></i>
+                        </button>
+                        <button id="next-btn" onclick="app.nextQuestion()" class="hidden px-6 py-2.5 bg-sky-600 hover:bg-sky-500 active:bg-sky-700 text-white font-bold rounded-lg shadow btn-touch items-center gap-2">
+                            <span>Prossima Prova</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Widget Calcolatrice (Fisarmonica integrata) -->
+            <div id="calculator-widget" class="hidden bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-2xl max-w-sm mx-auto w-full">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Calcolatrice Scientifica Trigonometrica</span>
+                    <button onclick="app.toggleCalculator()" class="text-slate-400 hover:text-white p-1">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="bg-slate-900 p-3 rounded border border-slate-800 mb-3 text-right">
+                    <div id="calc-screen" class="font-mono text-xl text-emerald-400 overflow-x-auto min-h-[30px] flex items-center justify-end">0</div>
+                </div>
+                <div class="grid grid-cols-4 gap-1.5 text-xs font-bold">
+                    <button onclick="app.calcInput('sin')" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-sky-300 rounded">sin</button>
+                    <button onclick="app.calcInput('cos')" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-sky-300 rounded">cos</button>
+                    <button onclick="app.calcInput('tan')" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-sky-300 rounded">tan</button>
+                    <button onclick="app.calcClear()" class="p-2.5 bg-rose-950 hover:bg-rose-900 text-rose-300 rounded">C</button>
+                    
+                    <button onclick="app.calcInput('7')" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded">7</button>
+                    <button onclick="app.calcInput('8')" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded">8</button>
+                    <button onclick="app.calcInput('9')" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded">9</button>
+                    <button onclick="app.calcInput('/')" class="p-2.5 bg-sky-950 text-sky-300 rounded">/</button>
+
+                    <button onclick="app.calcInput('4')" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded">4</button>
+                    <button onclick="app.calcInput('5')" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded">5</button>
+                    <button onclick="app.calcInput('6')" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded">6</button>
+                    <button onclick="app.calcInput('*')" class="p-2.5 bg-sky-950 text-sky-300 rounded">*</button>
+
+                    <button onclick="app.calcInput('1')" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded">1</button>
+                    <button onclick="app.calcInput('2')" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded">2</button>
+                    <button onclick="app.calcInput('3')" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded">3</button>
+                    <button onclick="app.calcInput('-')" class="p-2.5 bg-sky-950 text-sky-300 rounded">-</button>
+
+                    <button onclick="app.calcInput('0')" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded">0</button>
+                    <button onclick="app.calcInput('.')" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded">.</button>
+                    <button onclick="app.calcEquals()" class="p-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded col-span-2">=</button>
+                </div>
+                <p class="text-[10px] text-slate-500 text-center mt-2">Nota: le funzioni trigonometriche considerano angoli espressi in gradi sexagesimali (°).</p>
+            </div>
+        </section>
+
+        <!-- Schermata Finale Risultati -->
+        <section id="results-screen" class="hidden bg-slate-800 rounded-xl p-6 sm:p-8 border border-slate-700 shadow-xl text-center my-auto">
+            <div id="result-icon-container" class="inline-flex p-4 rounded-full mb-4">
+                <i id="result-icon" class="text-5xl"></i>
+            </div>
+            
+            <h2 id="result-title" class="text-2xl sm:text-3xl font-bold mb-2 text-white"></h2>
+            <p id="result-subtitle" class="text-slate-300 mb-6 text-sm sm:text-base"></p>
+
+            <!-- Score Summary Card -->
+            <div class="bg-slate-900 p-6 rounded-xl border border-slate-700 max-w-md mx-auto mb-8 grid grid-cols-2 gap-4">
+                <div class="border-r border-slate-800 pr-4">
+                    <span class="text-xs text-slate-400 block uppercase font-semibold">Punteggio Finale</span>
+                    <span id="final-score" class="text-3xl sm:text-4xl font-extrabold text-sky-400 font-mono">0/100</span>
+                </div>
+                <div class="pl-4 text-left flex flex-col justify-center">
+                    <div class="text-xs text-slate-300 mb-1">
+                        <span class="font-bold text-emerald-400" id="correct-count">0</span> Risposte esatte
+                    </div>
+                    <div class="text-xs text-slate-300">
+                        <span class="font-bold text-rose-400" id="wrong-count">0</span> Da revisionare
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dettaglio delle risposte -->
+            <div class="text-left mb-8 max-w-xl mx-auto">
+                <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-3">Riepilogo Schede di Prova:</h3>
+                <div id="summary-list" class="space-y-2 max-h-48 overflow-y-auto pr-2">
+                    <!-- Generato dinamicamente -->
+                </div>
+            </div>
+
+            <button onclick="app.restart()" class="px-8 py-3.5 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-lg shadow-lg btn-touch inline-flex items-center gap-2">
+                <i class="fa-solid fa-rotate-right"></i>
+                <span>Ricomincia Esercitazione</span>
+            </button>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-slate-800 p-4 text-center text-xs text-slate-500">
+        <div class="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+            <span> Topografia - 4° Anno C.A.T. (Costruzioni, Ambiente e Territorio)</span>
+            <span>Modulo: Intersezioni Topografiche in Avanti</span>
+        </div>
+    </footer>
+
+    <!-- LOGICA APPLICAZIONE JAVASCRIPT -->
+    <script>
+        /**
+         * BANCA DATI PROVE (10 Quesiti rigorosi di Topografia per 4° CAT)
+         */
+        const questionsData = [
+            {
+                id: 1,
+                category: "Concetti Fondamentali",
+                text: "Nell'intersezione in avanti per determinare la posizione di un punto incognito P, quali elementi stazioni e misure sono indispensabili sul campo?",
+                type: "choice",
+                options: [
+                    "Stazionare in P e misurare le distanze dai punti noti A e B.",
+                    "Stazionare nei punti noti A e B e misurare gli angoli azimutali diretti a P.",
+                    "Stazionare unicamente in A e misurare la distanza AP e l'azimut (AB).",
+                    "Stazionare in P e misurare l'angolo compreso tra A e B."
+                ],
+                correct: 1,
+                hint: "Ricorda che il punto P è spesso inaccessibile sul terreno, per cui le stazioni vengono fatte sui punti noti A e B.",
+                explanation: "L'intersezione in avanti si applica proprio quando P è inaccessibile. Si stazionano i due punti noti (A e B) e da essi si collegano i traguardi visuali verso P misurando gli angoli azimutali internali o le direzioni."
+            },
+            {
+                id: 2,
+                category: "Geometria del Triangolo Topografico",
+                text: "Dati due punti noti $A$ e $B$ e il punto da determinare $P$. Se l'angolo in $A$ è $\\alpha = 45.00^\\circ$ e l'angolo in $B$ è $\\beta = 65.00^\\circ$, quanto vale l'angolo $\\gamma$ al vertice $P$?",
+                type: "number",
+                unit: "gradi (°)",
+                correct: 70.00,
+                tolerance: 0.1,
+                hint: "La somma degli angoli interni di qualsiasi triangolo piano vale sempre 180° sexagesimali.",
+                explanation: "Nel triangolo ABP: $\\gamma = 180^\\circ - (\\alpha + \\beta) = 180^\\circ - (45.00^\\circ + 65.00^\\circ) = 70.00^\\circ$."
+            },
+            {
+                id: 3,
+                category: "Teorema dei Seni",
+                text: "Nel triangolo $ABP$, è nota la base $d_{AB} = 250.00\\text{ m}$. Gli angoli interni misurati sono $\\alpha = 50^\\circ$ (in A) e $\\beta = 70^\\circ$ (in B). Calcola la distanza $AP$ (lato $b$).",
+                type: "number",
+                unit: "metri (m)",
+                correct: 271.16,
+                tolerance: 0.5,
+                hint: "Usa il Teorema dei Seni: $\\frac{AP}{\\sin(\\beta)} = \\frac{AB}{\\sin(\\gamma)}$. Trova prima $\\gamma = 180^\\circ - 50^\\circ - 70^\\circ = 60^\\circ$.",
+                explanation: "1) Angolo in P: $\\gamma = 180^\\circ - (50^\\circ + 70^\\circ) = 60^\\circ$.\n2) Applicando il Teorema dei Seni: $AP = AB \\cdot \\frac{\\sin(\\beta)}{\\sin(\\gamma)} = 250 \\cdot \\frac{\\sin(70^\\circ)}{\\sin(60^\\circ)} = 250 \\cdot \\frac{0.9397}{0.8660} = 271.25\\text{ m}$ (tollerati decimali vicini)."
+            },
+            {
+                id: 4,
+                category: "Calcolo degli Azimut",
+                text: "Se l'azimut della base $(AB) = 82.50^\\circ$ e l'angolo interno a sinistra nel vertice A è $\\alpha = 38.20^\\circ$ (cioè la direzione AP ruota in senso orario da AB), quanto vale l'azimut $(AP)$?",
+                type: "number",
+                unit: "gradi (°)",
+                correct: 120.70,
+                tolerance: 0.1,
+                hint: "Se visualizzando da A il punto P si trova a destra rispetto alla linea AB, l'azimut $(AP)$ si ottiene sommando l'angolo $\\alpha$ all'azimut $(AB)$.",
+                explanation: "L'azimut della direzione AP è dato dalla somma goniometrica: $(AP) = (AB) + \\alpha = 82.50^\\circ + 38.20^\\circ = 120.70^\\circ$."
+            },
+            {
+                id: 5,
+                category: "Coordinate Parziali",
+                text: "Noto il punto $A(X_A = 100.00\\text{ m}, Y_A = 200.00\\text{ m})$, la distanza $AP = 150.00\\text{ m}$ e l'azimut $(AP) = 135.00^\\circ$. Calcola la coordinata X del punto $P$ ($X_P$).",
+                type: "number",
+                unit: "metri (m)",
+                correct: 206.07,
+                tolerance: 0.3,
+                hint: "La coordinata $X_P = X_A + AP \\cdot \\sin(AP)$. Ricorda che $\\sin(135^\\circ) = 0.7071$.",
+                explanation: "$X_P = X_A + \\Delta X_{AP} = 100.00 + 150.00 \\cdot \\sin(135^\\circ) = 100.00 + 150.00 \\cdot 0.7071 = 206.07\\text{ m}$."
+            },
+            {
+                id: 6,
+                category: "Coordinate Parziali Y",
+                text: "Utilizzando i dati del quesito precedente ($A(100.00; 200.00)$, $AP = 150.00\\text{ m}$, $(AP) = 135.00^\\circ$), quanto vale la coordinata Y del punto $P$ ($Y_P$)?",
+                type: "number",
+                unit: "metri (m)",
+                correct: 93.93,
+                tolerance: 0.3,
+                hint: "La coordinata $Y_P = Y_A + AP \\cdot \\cos(AP)$. Presta attenzione al segno del coseno nel 2° quadrante ($\cos(135^\circ) = -0.7071$).",
+                explanation: "$Y_P = Y_A + \\Delta Y_{AP} = 200.00 + 150.00 \\cdot \\cos(135^\\circ) = 200.00 + 150.00 \\cdot (-0.7071) = 200.00 - 106.07 = 93.93\\text{ m}$."
+            },
+            {
+                id: 7,
+                category: "Condizioni di Incertezza e Geometria",
+                text: "Perché nell'intersezione in avanti si raccomanda di evitare angoli al vertice $P$ (angolo $\\gamma$) troppo piccoli ($< 30^\\circ$) o troppo piatti ($> 150^\\circ$)?",
+                type: "choice",
+                options: [
+                    "Perché l'errore di misura degli angoli produce una forte incertezza nella posizione geometrica dell'intersezione delle due linee di mira.",
+                    "Perché in tali condizioni il Teorema dei Seni smette matematicamente di essere valido.",
+                    "Perché le stazioni A e B diventano tra loro non visibili.",
+                    "Perché non è possibile calcolare l'azimut della base AB."
+                ],
+                correct: 0,
+                hint: "Pensa all'intersezione di due rette quasi parallele o quasi sovrapposte: un minimo errore d'angolo sposta di molto il punto d'incontro.",
+                explanation: "Quando l'angolo al vertice $\\gamma$ è molto acuto o molto ottuso, i due raggi visuali sono quasi paralleli. Piccole imprecisioni nella misura degli angoli $\\alpha$ e $\\beta$ provocano enormi spostamenti del punto di intersezione $P$ (triangolo debole)."
+            },
+            {
+                id: 8,
+                category: "Verifica Doppia delle Coordinate",
+                text: "Nel calcolo di un'intersezione in avanti, per quale motivo operativo si calcolano le coordinate di $P$ partendo sia da $A$ che da $B$?",
+                type: "choice",
+                options: [
+                    "È un obbligo del catasto senza valenza matematica.",
+                    "Per verificare la correttezza dei calcoli e rilevare eventuali errori materiali di misura o di trascrittore.",
+                    "Perché l'intersezione da B fornisce una quota altimetrica anziché le coordinate piane.",
+                    "Per compensare la curvatura terrestre sulle brevi distanze."
+                ],
+                correct: 1,
+                hint: "Se calcoli le coordinate di P sia lungo il percorso $A \\rightarrow P$ che $B \\rightarrow P$, i due risultati devono coincidere a meno degli arrotondamenti.",
+                explanation: "La determinazione di $P$ da entrambe le stazioni note $A$ e $B$ garantisce il controllo dei calcoli ($X_P = X_A + \\Delta X_{AP} = X_B + \\Delta X_{BP}$). Coincidere nei risultati conferma l'assenza di errori materiali."
+            },
+            {
+                id: 9,
+                category: "Intersezione con Azimut Noti",
+                text: "Sono note le stazioni $A(0, 0)$ e $B(100.00\\text{ m}, 0)$. Gli azimut determinati sul campo sono $(AP) = 45.00^\\circ$ e $(BP) = 315.00^\\circ$. Quali sono le coordinate $(X_P, Y_P)$ di $P$?",
+                type: "choice",
+                options: [
+                    "$X_P = 50.00\\text{ m}, Y_P = 50.00\\text{ m}$",
+                    "$X_P = 100.00\\text{ m}, Y_P = 100.00\\text{ m}$",
+                    "$X_P = 0.00\\text{ m}, Y_P = 50.00\\text{ m}$",
+                    "$X_P = 70.71\\text{ m}, Y_P = 70.71\\text{ m}$"
+                ],
+                correct: 0,
+                hint: "Disegna il sistema: da A il raggio parte a 45° (in alto a destra), da B(100,0) il raggio parte a 315° (in alto a sinistra). Formano un triangolo rettangolo isoscele.",
+                explanation: "I due raggi partono da A(0,0) con inclinazione +45° e da B(100,0) con inclinazione -45°. Per simmetria l'intersezione avviene esattamente a metà della base AB ($X_P = 50\\text{ m}$) ed essendo $\\tan(45^\\circ)=1$, l'altezza è $Y_P = 50\\text{ m}$."
+            },
+            {
+                id: 10,
+                category: "Formula Diretta di Snellius-Wronsky",
+                text: "Quale tra i seguenti passaggi matematici descrive correttamente la sequenza risolutiva di un'intersezione in avanti classica?",
+                type: "choice",
+                options: [
+                    "1) Distanza AB e azimut (AB) -> 2) Risoluzione triangolo ABP con Teorema Seni -> 3) Azimut AP -> 4) Coordinate di P.",
+                    "1) Misura quota P -> 2) Calcolo del dislivello -> 3) Teorema di Pitagora -> 4) Coordinate.",
+                    "1) Calcolo azimut (BA) -> 2) Teorema di Carnot -> 3) Perpendicolare alla base -> 4) Media aritmetica.",
+                    "1) Stazione in P -> 2) Misura distanza AB -> 3) Formula di Erone -> 4) Coordinate."
+                ],
+                correct: 0,
+                hint: "Visualizza lo schema di calcolo topografico: prima la base nota o calcolata tra le stazioni, poi la trigonometria del triangolo, infine il trasporto di coordinate.",
+                explanation: "La sequenza corretta è: 1) Calcolo della base AB e dell'azimut (AB) dalle coordinate note di A e B; 2) Risoluzione del triangolo ABP con il Teorema dei Seni per trovare AP e BP; 3) Calcolo dell'azimut (AP); 4) Calcolo delle coordinate parziali e assolute di P."
+            }
+        ];
+
+        /**
+         * CLASSE APPLICAZIONE
+         */
+        class TopoApp {
+            constructor() {
+                this.currentIndex = 0;
+                this.score = 0;
+                this.attemptsLeft = 3;
+                this.userAnswersHistory = [];
+                this.calcDisplay = "0";
+            }
+
+            startChallenge() {
+                this.currentIndex = 0;
+                this.score = 0;
+                this.userAnswersHistory = [];
+                
+                document.getElementById('welcome-screen').classList.add('hidden');
+                document.getElementById('results-screen').classList.add('hidden');
+                document.getElementById('quiz-screen').classList.remove('hidden');
+                document.getElementById('quiz-screen').classList.add('flex');
+                document.getElementById('progress-container').classList.remove('hidden');
+                
+                this.loadQuestion();
+            }
+
+            loadQuestion() {
+                const q = questionsData[this.currentIndex];
+                this.attemptsLeft = 3;
+
+                // Aggiorna indicatori
+                document.getElementById('question-tracker').innerText = `${this.currentIndex + 1} / ${questionsData.length}`;
+                document.getElementById('score-tracker').innerText = `${this.score} pt`;
+                document.getElementById('badge-category').innerText = q.category;
+                this.updateAttemptsBadge();
+
+                // Pulisci feedback e bottoni
+                const feedbackBox = document.getElementById('feedback-box');
+                feedbackBox.classList.add('hidden');
+                document.getElementById('explanation-detail').classList.add('hidden');
+                
+                document.getElementById('submit-btn').classList.remove('hidden');
+                document.getElementById('next-btn').classList.add('hidden');
+
+                // Imposta testo della domanda
+                document.getElementById('question-text').innerHTML = this.formatMathText(q.text);
+
+                // Genera HTML per risposta
+                const container = document.getElementById('answer-container');
+                container.innerHTML = '';
+
+                if (q.type === 'choice') {
+                    q.options.forEach((opt, idx) => {
+                        const optEl = document.createElement('label');
+                        optEl.className = 'flex items-center p-3.5 bg-slate-900 hover:bg-slate-750 border border-slate-700 rounded-lg cursor-pointer transition btn-touch';
+                        optEl.innerHTML = `
+                            <input type="radio" name="answer" value="${idx}" class="w-5 h-5 text-sky-500 bg-slate-800 border-slate-600 focus:ring-sky-400">
+                            <span class="ml-3 text-sm font-medium text-slate-200">${this.formatMathText(opt)}</span>
+                        `;
+                        container.appendChild(optEl);
+                    });
+                } else if (q.type === 'number') {
+                    container.innerHTML = `
+                        <div class="flex flex-col gap-2">
+                            <label for="num-answer" class="text-xs font-semibold text-slate-400">Inserisci il valore calcolato (${q.unit}):</label>
+                            <div class="flex items-center gap-2">
+                                <input type="number" step="any" id="num-answer" placeholder="Es. 125.50" 
+                                    class="w-full sm:w-64 p-3 bg-slate-900 border border-slate-700 rounded-lg font-mono text-base text-sky-300 focus:border-sky-500">
+                                <span class="text-sm font-bold text-slate-400">${q.unit}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            formatMathText(str) {
+                // Semplice formattatore per simboli matematici / LaTeX inline
+                return str
+                    .replace(/\$(.*?)\$/g, '<span class="font-mono text-sky-300 font-semibold">$1</span>')
+                    .replace(/\\alpha/g, '&alpha;')
+                    .replace(/\\beta/g, '&beta;')
+                    .replace(/\\gamma/g, '&gamma;')
+                    .replace(/\\circ/g, '°')
+                    .replace(/\\cdot/g, '·')
+                    .replace(/\\frac\{(.*?)\}\{(.*?)\}/g, '($1 / $2)');
+            }
+
+            updateAttemptsBadge() {
+                const badge = document.getElementById('attempts-badge');
+                badge.innerText = `Tentativo ${4 - this.attemptsLeft} di 3`;
+                if (this.attemptsLeft === 3) {
+                    badge.className = "text-xs font-medium text-emerald-400 bg-emerald-950/40 border border-emerald-800/50 px-2.5 py-1 rounded-md";
+                } else if (this.attemptsLeft === 2) {
+                    badge.className = "text-xs font-medium text-amber-400 bg-amber-950/40 border border-amber-800/50 px-2.5 py-1 rounded-md";
+                } else {
+                    badge.className = "text-xs font-medium text-rose-400 bg-rose-950/40 border border-rose-800/50 px-2.5 py-1 rounded-md";
+                }
+            }
+
+            checkAnswer() {
+                const q = questionsData[this.currentIndex];
+                let isCorrect = false;
+                let userVal = null;
+
+                if (q.type === 'choice') {
+                    const selected = document.querySelector('input[name="answer"]:checked');
+                    if (!selected) {
+                        this.showFeedback('warning', 'Selezione mancante', 'Seleziona una delle opzioni prima di verificare.');
+                        return;
+                    }
+                    userVal = parseInt(selected.value);
+                    isCorrect = (userVal === q.correct);
+                } else if (q.type === 'number') {
+                    const inputEl = document.getElementById('num-answer');
+                    userVal = parseFloat(inputEl.value.replace(',', '.'));
+                    if (isNaN(userVal)) {
+                        this.showFeedback('warning', 'Valore non valido', 'Inserisci un numero valido nel campo di risposta.');
+                        return;
+                    }
+                    isCorrect = Math.abs(userVal - q.correct) <= q.tolerance;
+                }
+
+                if (isCorrect) {
+                    // Calcolo punteggio pesato sui tentativi
+                    const pointsGained = this.attemptsLeft === 3 ? 10 : (this.attemptsLeft === 2 ? 7 : 4);
+                    this.score += pointsGained;
+                    document.getElementById('score-tracker').innerText = `${this.score} pt`;
+
+                    this.showFeedback('success', '✓ Risposta Corretta!', `Eccellente. +${pointsGained} punti.`);
+                    this.showExplanation(q.explanation);
+                    this.finishQuestionAttempt(true);
+                } else {
+                    this.attemptsLeft--;
+                    this.updateAttemptsBadge();
+
+                    if (this.attemptsLeft > 0) {
+                        this.showFeedback('error', '✗ Risposta Errata', `Suggerimento: ${q.hint}`);
+                    } else {
+                        this.showFeedback('error', '✗ Tentativi Esauriti', `La risposta corretta non è stata individuata.`);
+                        this.showExplanation(q.explanation);
+                        this.finishQuestionAttempt(false);
+                    }
+                }
+            }
+
+            finishQuestionAttempt(passed) {
+                this.userAnswersHistory.push({
+                    questionId: questionsData[this.currentIndex].id,
+                    passed: passed,
+                    attemptsUsed: 4 - this.attemptsLeft
+                });
+
+                document.getElementById('submit-btn').classList.add('hidden');
+                document.getElementById('next-btn').classList.remove('hidden');
+                document.getElementById('next-btn').classList.add('flex');
+            }
+
+            showFeedback(type, title, text) {
+                const box = document.getElementById('feedback-box');
+                const titleEl = document.getElementById('feedback-title');
+                const textEl = document.getElementById('feedback-text');
+                const iconEl = document.getElementById('feedback-icon');
+
+                box.classList.remove('hidden', 'bg-emerald-950/60', 'border-emerald-700', 'text-emerald-200',
+                                    'bg-rose-950/60', 'border-rose-700', 'text-rose-200',
+                                    'bg-amber-950/60', 'border-amber-700', 'text-amber-200');
+
+                if (type === 'success') {
+                    box.classList.add('bg-emerald-950/60', 'border-emerald-700', 'text-emerald-200');
+                    iconEl.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i>';
+                } else if (type === 'error') {
+                    box.classList.add('bg-rose-950/60', 'border-rose-700', 'text-rose-200');
+                    iconEl.innerHTML = '<i class="fa-solid fa-circle-xmark text-rose-400"></i>';
+                } else {
+                    box.classList.add('bg-amber-950/60', 'border-amber-700', 'text-amber-200');
+                    iconEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-amber-400"></i>';
+                }
+
+                titleEl.innerText = title;
+                textEl.innerHTML = this.formatMathText(text);
+            }
+
+            showExplanation(expText) {
+                const expEl = document.getElementById('explanation-detail');
+                expEl.classList.remove('hidden');
+                expEl.innerHTML = `<strong>Spiegazione dettagliata:</strong><br>${this.formatMathText(expText).replace(/\n/g, '<br>')}`;
+            }
+
+            nextQuestion() {
+                this.currentIndex++;
+                if (this.currentIndex < questionsData.length) {
+                    this.loadQuestion();
+                } else {
+                    this.showResults();
+                }
+            }
+
+            showResults() {
+                document.getElementById('quiz-screen').classList.add('hidden');
+                document.getElementById('quiz-screen').classList.remove('flex');
+                document.getElementById('results-screen').classList.remove('hidden');
+
+                const finalScoreEl = document.getElementById('final-score');
+                const titleEl = document.getElementById('result-title');
+                const subtitleEl = document.getElementById('result-subtitle');
+                const iconContainer = document.getElementById('result-icon-container');
+                const iconEl = document.getElementById('result-icon');
+
+                finalScoreEl.innerText = `${this.score}/100`;
+
+                const correctCount = this.userAnswersHistory.filter(h => h.passed).length;
+                document.getElementById('correct-count').innerText = correctCount;
+                document.getElementById('wrong-count').innerText = questionsData.length - correctCount;
+
+                if (this.score >= 80) {
+                    titleEl.innerText = "Eccellente Padronanza Topografica!";
+                    subtitleEl.innerText = "Hai dimostrato una completa conoscenza dei calcoli di intersezione in avanti.";
+                    iconContainer.className = "inline-flex p-4 rounded-full mb-4 bg-emerald-900/50 text-emerald-400 border border-emerald-700";
+                    iconEl.className = "fa-solid fa-award text-5xl";
+                } else if (this.score >= 60) {
+                    titleEl.innerText = "Buona Preparazione!";
+                    subtitleEl.innerText = "Conoscono bene il procedimento, ma occorre fare attenzione ai dettagli trigonometrici.";
+                    iconContainer.className = "inline-flex p-4 rounded-full mb-4 bg-sky-900/50 text-sky-400 border border-sky-700";
+                    iconEl.className = "fa-solid fa-graduation-cap text-5xl";
+                } else {
+                    titleEl.innerText = "Revisione Necessaria";
+                    subtitleEl.innerText = "Si consiglia di ripassare il Teorema dei Seni e la teoria sui trasporti degli azimut.";
+                    iconContainer.className = "inline-flex p-4 rounded-full mb-4 bg-rose-900/50 text-rose-400 border border-rose-700";
+                    iconEl.className = "fa-solid fa-book-open text-5xl";
+                }
+
+                // Genera lista riepilogativa
+                const summaryList = document.getElementById('summary-list');
+                summaryList.innerHTML = '';
+                this.userAnswersHistory.forEach((h, i) => {
+                    const item = document.createElement('div');
+                    item.className = `p-2.5 rounded text-xs flex justify-between items-center border ${
+                        h.passed ? 'bg-emerald-950/30 border-emerald-800/50 text-emerald-300' : 'bg-rose-950/30 border-rose-800/50 text-rose-300'
+                    }`;
+                    item.innerHTML = `
+                        <span><strong>Q${i+1}:</strong> ${questionsData[i].category}</span>
+                        <span>${h.passed ? '✓ Esatto (' + h.attemptsUsed + '° tent.)' : '✗ Non superato'}</span>
+                    `;
+                    summaryList.appendChild(item);
+                });
+            }
+
+            restart() {
+                this.startChallenge();
+            }
+
+            // Calcolatrice Scientifica Widget Functions
+            toggleCalculator() {
+                const calc = document.getElementById('calculator-widget');
+                calc.classList.toggle('hidden');
+            }
+
+            calcInput(val) {
+                if (this.calcDisplay === "0" || this.calcDisplay === "Errore") {
+                    this.calcDisplay = val;
+                } else {
+                    this.calcDisplay += val;
+                }
+                document.getElementById('calc-screen').innerText = this.calcDisplay;
+            }
+
+            calcClear() {
+                this.calcDisplay = "0";
+                document.getElementById('calc-screen').innerText = this.calcDisplay;
+            }
+
+            calcEquals() {
+                try {
+                    let expr = this.calcDisplay;
+                    // Conversione trigonometria da gradi sexagesimali a radianti per JS Math
+                    expr = expr.replace(/sin\((.*?)\)/g, '(Math.sin(($1)*Math.PI/180))');
+                    expr = expr.replace(/cos\((.*?)\)/g, '(Math.cos(($1)*Math.PI/180))');
+                    expr = expr.replace(/tan\((.*?)\)/g, '(Math.tan(($1)*Math.PI/180))');
+                    
+                    // Semplice supporto per funzioni isolate es: sin45 -> sin(45)
+                    expr = expr.replace(/sin([0-9.]+)/g, '(Math.sin($1*Math.PI/180))');
+                    expr = expr.replace(/cos([0-9.]+)/g, '(Math.cos($1*Math.PI/180))');
+                    expr = expr.replace(/tan([0-9.]+)/g, '(Math.tan($1*Math.PI/180))');
+
+                    let res = Function('"use strict";return (' + expr + ')')();
+                    if (typeof res === 'number' && !isNaN(res)) {
+                        this.calcDisplay = Number.isInteger(res) ? res.toString() : res.toFixed(4).toString();
+                    } else {
+                        this.calcDisplay = "Errore";
+                    }
+                } catch (e) {
+                    this.calcDisplay = "Errore";
+                }
+                document.getElementById('calc-screen').innerText = this.calcDisplay;
+            }
+        }
+
+        // Inizializzazione applicazione al caricamento pagina
+        let app;
+        window.onload = function() {
+            app = new TopoApp();
+        };
+    </script>
+</body>
+</html>
